@@ -20,6 +20,8 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
+from App.model import addRouteConnections
+from DISClib.ADT.graph import numVertices
 import config as cf
 import model
 import csv
@@ -30,9 +32,47 @@ El controlador se encarga de mediar entre la vista y el modelo.
 """
 
 # Inicialización del Catálogo de libros
-
+def init():
+    analyzer = model.newAnalyzer()
+    return analyzer
 # Funciones para la carga de datos
-
+def loadServices(analyzer, servicesfile, airportsfile, citiesfile):
+    servicesfile = cf.data_dir + servicesfile
+    airportsfile = cf.data_dir + airportsfile
+    citiesfile = cf.data_dir + citiesfile
+    input_file = csv.DictReader(open(servicesfile, encoding="utf-8"), delimiter=",")
+    input_file2 = csv.DictReader(open(airportsfile, encoding="utf-8"), delimiter=",")
+    input_file3 = csv.DictReader(open(citiesfile, encoding="utf-8"), delimiter=",")
+    for airport in input_file2:
+        model.addAirportInfo(analyzer, airport)
+    for city in input_file3:
+        model.addCityInfo(analyzer, city)
+    for service in input_file:
+        model.addAirportConnection(analyzer, service)
+    model.addRouteConnections(analyzer)
+    
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+
+def totalStops(analyzer, graph):
+    """
+    Total de paradas de autobus
+    """
+    return model.totalStops(analyzer, graph)
+
+
+def totalConnections(analyzer, graph):
+    """
+    Total de enlaces entre las paradas
+    """
+    return model.totalConnections(analyzer, graph)
+
+def searchAdjacents(analyzer, graph, vertex):
+    return model.searchAdjacents(analyzer, graph, vertex)
+
+def totalAiports(analyzer):
+    return model.totalAirports(analyzer)
+
+def totalCities(analyzer):
+    return model.totalCities(analyzer)

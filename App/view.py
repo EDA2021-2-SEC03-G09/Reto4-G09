@@ -33,7 +33,9 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
-
+servicefile = "routes_full.csv"
+airportsfile = "airports_full.csv"
+citiesfile = "worldcities.csv"
 def printMenu():
     print("Bienvenido")
     print("1- Inicializar Analizador")
@@ -44,7 +46,7 @@ def printMenu():
     print("6- Utilizar las millas de viajero")
     print("7- Cuantificar el efecto de un aeropuerto cerrado")
     print("8- Comparar con servicio WEB externo")
-    
+
 catalog = None
 
 """
@@ -55,10 +57,24 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Inicializando ....")
+        cont= controller.init()
 
     elif int(inputs[0]) == 2:
         print("Cargando datos ....")
-
+        controller.loadServices(cont, servicefile, airportsfile, citiesfile)
+        numedges = controller.totalConnections(cont, "connectionsod")
+        numvertex = controller.totalStops(cont,"connectionsod")
+        print(numedges)
+        print(numvertex)
+        numedges2 = controller.totalConnections(cont, "connectionstd")
+        numvertex2 = controller.totalStops(cont,"connectionstd")
+        print(numedges2)
+        print(numvertex2)
+        airport= controller.totalAiports(cont)
+        print(airport)
+        city, cant = controller.totalCities(cont)
+        print(city)
+        print(cant)
     elif int(inputs[0]) == 3:
         pass
 
