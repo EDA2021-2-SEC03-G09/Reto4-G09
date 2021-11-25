@@ -28,7 +28,7 @@
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
-from DISClib.ADT.graph import gr
+from DISClib.ADT.graph import gr, indegree
 from DISClib.Utils import error as error
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
@@ -171,14 +171,43 @@ def cleanServiceDistance(service):
         service['distance_km'] = 0
 
 def searchAdjacents(analyzer, graph, vertex):
-    return gr.adjacentEdges(analyzer[graph], vertex)
+    try:
+        return gr.adjacentEdges(analyzer[graph], vertex)
+    except Exception:
+        print("El aeropuerto no posee rutas no dirigidas")
 
 def formatVertex(service):
     
     dep = service['Departure'] 
     des = service["Destination"]
     return dep,des
+
+
+def servesConnection(analyzer,graph, airport):
+    connections = analyzer[graph]
+    airportsinfo = analyzer["airportsInfo"]
+    airports = gr.edges(connections)
+    total = lt.newList(datastructure="SINGLE_LINKED")
+    cant = 0
+    for airport in lt.iterator(airports):
+        out = gr.outdegree(connections, airport)
+        inside = gr.indegree(connections, airport)
+        if out > 1 and inside > 1:
+            info = mp.get(airportsinfo, airport)["value"]
+            display = {"Nombre": "", "Ciudad": "", "Pais": ""}
+            display["Nombre"] = info["Name"]
+            display["Ciudad"] = info["City"]
+            display["Pais"] = info["Country"]
+            display = {airport: display}
+            lt.addLast(total, display)
+            cant += 1
+    return total, cant
+
+            
+
 # Funciones de ordenamiento
+
+
 def compareAirports(airport, keys):
     airportcode = keys["key"]
     if (airport== airportcode):

@@ -25,7 +25,7 @@ from DISClib.ADT.graph import numVertices
 import config as cf
 import model
 import csv
-
+from DISClib.ADT import list as lt
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -50,7 +50,6 @@ def loadServices(analyzer, servicesfile, airportsfile, citiesfile):
     for service in input_file:
         model.addAirportConnection(analyzer, service)
     model.addRouteConnections(analyzer)
-    
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo

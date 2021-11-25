@@ -64,20 +64,26 @@ while True:
         controller.loadServices(cont, servicefile, airportsfile, citiesfile)
         numedges = controller.totalConnections(cont, "connectionsod")
         numvertex = controller.totalStops(cont,"connectionsod")
-        print(numedges)
-        print(numvertex)
+        print("\nSe cargaron " + str(numedges) + " rutas en el grafo general")
+        print("Se cargaron " + str(numvertex) + " aeropuertos en el grafo general")
         numedges2 = controller.totalConnections(cont, "connectionstd")
         numvertex2 = controller.totalStops(cont,"connectionstd")
-        print(numedges2)
-        print(numvertex2)
+        print("\nSe cargaron " + str(numedges2) + " rutas en el bigrafo")
+        print("Se cargaron " + str(numvertex2) + " aeropuertos en el bigrafo\n")
         airport= controller.totalAiports(cont)
+        print("El primer aeropuerto cargado fue")
         print(airport)
         city, cant = controller.totalCities(cont)
+        print("La primer ciudad cargada fue")
         print(city)
-        print(cant)
+        print("\nSe cargaron " + str(cant) + " ciudades")
+        
     elif int(inputs[0]) == 3:
-        pass
-
+        vertex = input("Ingrese un aeropuerto a buscar: ")
+        graph = input("En que catalogo desea buscar(connectionsod/connectionstd): \n >" )
+        answer = controller.searchAdjacents(cont, graph, vertex)
+        for i in lt.iterator(answer):
+            print(i["vertexB"])
     elif int(inputs[0]) == 4:
         pass
     
