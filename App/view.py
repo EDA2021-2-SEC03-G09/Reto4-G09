@@ -36,6 +36,20 @@ operación solicitada
 servicefile = "routes_full.csv"
 airportsfile = "airports_full.csv"
 citiesfile = "worldcities.csv"
+
+def repeatedCities(respuestas):
+    if lt.size(respuestas) > 1:
+        print("se encontraron " + str(lt.size(respuestas)) + " ciudades con el mismo nombre, por favor seleccione la correcta")
+        print("-"*50)
+        for i in lt.iterator(respuestas):
+            print(i)
+            print("-"*50)
+        correcta = input("Seleccione la latitud de la ciudad de la que desee realizar la consulta: \n> ")
+        for i in lt.iterator(respuestas):
+            if correcta == i["Latitude"]:
+                correcta = i
+        print(i)
+
 def printMenu():
     print("Bienvenido")
     print("1- Inicializar Analizador")
@@ -84,12 +98,20 @@ while True:
         answer = controller.searchAdjacents(cont, graph, vertex)
         for i in lt.iterator(answer):
             print(i["vertexB"])
+            print(lt.size(answer))
     elif int(inputs[0]) == 4:
         pass
     
     elif int(inputs[0]) == 5:
-        pass
-    
+        ciudadp = input("Ingrese una ciudad de partida: ")
+        respuestas = controller.getbyCities(cont, ciudadp)
+        repeatedCities(respuestas)
+        ciudadll = input("Ingrese una ciudad de llegada: ")
+        respuestas = controller.getbyCities(cont, ciudadll)
+        repeatedCities(respuestas)
+        
+                
+        
     elif int(inputs[0]) == 6:
         pass
     

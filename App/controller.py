@@ -75,3 +75,6 @@ def totalAiports(analyzer):
 
 def totalCities(analyzer):
     return model.totalCities(analyzer)
+
+def getbyCities(analyzer, city):
+    return model.getCities(analyzer, city)

@@ -123,17 +123,17 @@ def addAirportInfo(analyzer, airport):
         mp.put(analyzer["airportsInfo"], airport["IATA"], info)
 
 def addCityInfo(analyzer, airport):
-    exists = mp.get(analyzer["countries"], airport["city_ascii"])
-    if exists is None:
-        info = {"City": "", "IATA": "", "Country": "", "Latitude": "", "Longitude":"", "Population": 0, "Id": ""}
-        info["IATA"] = airport["iso3"]
-        info["City"] = airport["city"]
-        info["Country"] = airport["country"]
-        info["Latitude"] = airport["lat"]
-        info["Longitude"] = airport["lng"]
-        info["Population"] = airport["population"]
-        info["Id"] = airport["id"]
-        mp.put(analyzer["countries"], airport["city_ascii"], info)
+    info = {"City": "", "IATA": "", "Country": "", "Latitude": "", "Longitude":"", "Population": 0, "Id": ""}
+    info["IATA"] = airport["iso3"]
+    info["City"] = airport["city"]
+    info["Country"] = airport["country"]
+    info["Latitude"] = airport["lat"]
+    info["Longitude"] = airport["lng"]
+    info["Population"] = airport["population"]
+    info["Id"] = airport["id"]
+    info["Admin"] = airport["admin_name"]
+    info["Capital"] = airport["admin_name"]
+    mp.put(analyzer["countries"], info["Id"], info)
 # Funciones para creacion de datos
 
 def addConnection(analyzer, graph, origin, destination, distance):
@@ -164,6 +164,17 @@ def totalCities(analyzer):
     keys = mp.keySet(analyzer["countries"])
     cant = mp.size(analyzer["countries"])
     return mp.get(analyzer["countries"], lt.firstElement(keys)), cant
+
+def getCities(analyzer, city):
+    countries = analyzer["countries"]
+    samename = lt.newList()
+    cities = mp.keySet(countries)
+    for cityrep in lt.iterator(cities):
+        info = mp.get(countries, cityrep)
+        info = me.getValue(info)
+        if info["City"] == city:
+            lt.addLast(samename, info)
+    return samename
 # Funciones utilizadas para comparar elementos dentro de una lista
 def cleanServiceDistance(service):
 
