@@ -78,3 +78,12 @@ def totalCities(analyzer):
 
 def getbyCities(analyzer, city):
     return model.getCities(analyzer, city)
+
+def searchInter(analyzer):
+    return model.searchInter(analyzer)
+
+def findSCC(analyzer, iata1, iata2):
+    return model.findSCC(analyzer, iata1, iata2)
+
+def findShortest(analyzer, city1, city2):
+    return model.findShortest(analyzer, city1, city2)

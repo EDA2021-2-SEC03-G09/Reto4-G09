@@ -25,10 +25,16 @@
  """
 
 
+from DISClib.Algorithms.Graphs.bellmanford import distTo, hasPathTo
+from DISClib.Algorithms.Graphs.bfs import pathTo
+from DISClib.Algorithms.Graphs.dfo import DepthFirstOrder
+from DISClib.Algorithms.Graphs.scc import KosarajuSCC, connectedComponents, reverseGraph, sccCount, stronglyConnected
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
-from DISClib.ADT.graph import gr, indegree
+from DISClib.ADT import orderedmap as om
+from math import radians, cos, sin, asin, sqrt
+from DISClib.ADT.graph import gr, indegree, outdegree
 from DISClib.Utils import error as error
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
@@ -138,7 +144,6 @@ def addCityInfo(analyzer, airport):
 
 def addConnection(analyzer, graph, origin, destination, distance):
     edge = gr.getEdge(analyzer[graph], origin, destination)
-    i = 1
     if edge is None:
         gr.addEdge(analyzer[graph], origin, destination, distance)
     return analyzer
@@ -220,7 +225,7 @@ def servesConnection(analyzer,graph, airport):
 
 
 def compareAirports(airport, keys):
-    airportcode = keys["key"]
+    airportcode = (keys["key"])
     if (airport== airportcode):
         return 0
     elif (airport > airportcode):
@@ -238,3 +243,96 @@ def compareRoutes(route1, route2):
         return 1
     else:
         return -1
+
+def compareNums(route1, route2):
+    if (route1 == route2):
+        return 0
+    elif (route1 > route2):
+        return 1
+    else:
+        return -1
+
+
+def buildAnswer(nodeinfo, out, inside):
+    info = {"City": "", "Country": "", "IATA": "", "Inbound": 0, "Outbound": 0}
+    info["City"] = nodeinfo["value"]["City"]
+    info["Country"] = nodeinfo["value"]["Country"]
+    info["IATA"] = nodeinfo["key"]
+    info["Inbound"] = inside
+    info["Outbound"] = out
+    dic = {nodeinfo["value"]["Name"]: info}
+    return dic
+
+def searchInter(analyzer):
+    routes = analyzer["connectionsod"]
+    total = lt.newList(cmpfunction=compareNums)
+    connected = gr.numVertices(routes)
+    nodes = gr.vertices(routes)
+    for node in lt.iterator(nodes):
+        out = gr.outdegree(routes, node)
+        inside = gr.indegree(routes, node)
+        nodeinfo = mp.get(analyzer["airportsInfo"], node)
+        if out > 1 and inside > 1:
+            answer = buildAnswer(nodeinfo, out, inside)
+            lt.addLast(total, answer)
+        elif out == 1 or inside == 1:
+            adyacentes = gr.adjacents(routes,node)
+            if lt.size(adyacentes) > 1:
+                answer = buildAnswer(nodeinfo, out, inside)
+                lt.addLast(total, answer)  
+    return total, connected
+
+def findSCC(analyzer, iata1, iata2):
+    routes = analyzer["connectionsod"]
+    scc = KosarajuSCC(routes)
+    cant = connectedComponents(scc)
+    present = gr.vertices(routes)
+    conect = False
+    if lt.isPresent(present, iata1) != 0 and lt.isPresent(present, iata2):
+        conect = stronglyConnected(scc, iata1, iata2)
+    return cant, conect
+
+def findShortest(analyzer, ciudad1, ciudad2):
+    busq = om.newMap(omaptype="RBT", comparefunction=compareRoutes)
+    busq2 = om.newMap(omaptype="RBT", comparefunction=compareRoutes)
+    airports = analyzer["airportsInfo"]
+    keys = mp.keySet(airports)
+    city1 = mp.get(analyzer["countries"], ciudad1)
+    lat1, lon1 = getCoords(city1) 
+    city2 = mp.get(analyzer["countries"], ciudad2)
+    lat2, lon2 = getCoords(city2)
+    for key in lt.iterator(keys):
+        key = mp.get(airports, key)
+        airportlat = key["value"]["Latitude"]
+        airportlon = key["value"]["Longitude"]
+        distance = haversine(float(lat1), float(lon1), float(airportlat), float(airportlon))
+        distance2 = haversine(float(lat2), float(lon2), float(airportlat), float(airportlon))
+        om.put(busq, distance, key["key"])
+        om.put(busq2, distance2, key["key"])
+    distancesal = om.minKey(busq)
+    airport1 = om.get(busq, distancesal)
+    distancelleg = om.minKey(busq2)
+    airport2 = om.get(busq2, distancelleg)
+    estbusqueda = djk.Dijkstra(analyzer["connectionsod"], airport1["value"])
+    path = djk.distTo(estbusqueda, airport2["value"])
+    return distancesal, distancelleg, path
+
+
+def getCoords(city):
+    lat = city["value"]["Latitude"]
+    lon = city["value"]["Longitude"]
+    return lat, lon
+
+def haversine(lat1, lon1, lat2, lon2):
+
+      R = 6372.8 # this is in miles.  For Earth radius in kilometers use 6372.8 km
+
+      dLat = radians(lat2 - lat1)
+      dLon = radians(lon2 - lon1)
+      lat1 = radians(lat1)
+      lat2 = radians(lat2)
+
+      a = sin(dLat/2)**2 + cos(lat1)*cos(lat2)*sin(dLon/2)**2
+      c = 2*asin(sqrt(a))
+
+      return R * c

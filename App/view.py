@@ -33,9 +33,9 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
-servicefile = "routes_full.csv"
-airportsfile = "airports_full.csv"
-citiesfile = "worldcities.csv"
+servicefile = "routes-utf8-small.csv"
+airportsfile = "airports-utf8-small.csv"
+citiesfile = "worldcities-utf8.csv"
 
 def repeatedCities(respuestas):
     if lt.size(respuestas) > 1:
@@ -48,7 +48,9 @@ def repeatedCities(respuestas):
         for i in lt.iterator(respuestas):
             if correcta == i["Latitude"]:
                 correcta = i
-        print(i)
+        return correcta
+    else:
+        return lt.firstElement(respuestas)
 
 def printMenu():
     print("Bienvenido")
@@ -61,6 +63,25 @@ def printMenu():
     print("7- Cuantificar el efecto de un aeropuerto cerrado")
     print("8- Comparar con servicio WEB externo")
 
+def printAnswer(answer):
+    for airport in lt.iterator(answer):
+        name = dict.keys(airport)
+        for nam in name:
+            namii = nam
+        print("Nombre del aeropuerto: " + namii)
+        print("Informacion encontrada: \n" + str(airport[namii]))
+        print("-"*100)
+        print("-"*100)
+
+def top(answer):
+    top= lt.newList()
+    if lt.size(answer) >= 5:
+        for i in range(0,5):
+            lt.addLast(top, lt.firstElement[answer])
+            lt.removeFirst(answer)
+        printAnswer(top)
+    else: 
+        printAnswer(answer)
 catalog = None
 
 """
@@ -92,26 +113,39 @@ while True:
         print(city)
         print("\nSe cargaron " + str(cant) + " ciudades")
         
+        
     elif int(inputs[0]) == 3:
-        vertex = input("Ingrese un aeropuerto a buscar: ")
-        graph = input("En que catalogo desea buscar(connectionsod/connectionstd): \n >" )
-        answer = controller.searchAdjacents(cont, graph, vertex)
-        for i in lt.iterator(answer):
-            print(i["vertexB"])
-            print(lt.size(answer))
+        respuesta, cant = controller.searchInter(cont)
+        print("Se encontraron " + str(cant) + " aeropuertos interconectados")
+        printAnswer(respuesta)
     elif int(inputs[0]) == 4:
-        pass
+        iata1 = input("Seleccione un primer aeropuerto: \n>")
+        iata2 = input("Seleccione un segundo aeropuerto: \n>")
+        cant, conect = controller.findSCC(cont, iata1, iata2)
+        print("Se encontraron " + str(cant) + " aeropuertos conectados")
+        if conect:
+            print("El aeropuerto " + iata1 + " esta conectado con el aeropuerto " + iata2)
+        else:
+            print("El aeropuerto " + iata1 + " NO esta conectado con el aeropuerto " + iata2)
+
     
     elif int(inputs[0]) == 5:
         ciudadp = input("Ingrese una ciudad de partida: ")
         respuestas = controller.getbyCities(cont, ciudadp)
-        repeatedCities(respuestas)
+        ciudad1 = repeatedCities(respuestas)["Id"]
         ciudadll = input("Ingrese una ciudad de llegada: ")
         respuestas = controller.getbyCities(cont, ciudadll)
-        repeatedCities(respuestas)
+        ciudad2 = repeatedCities(respuestas)["Id"]
+        sal, lleg, fly = controller.findShortest(cont, ciudad1, ciudad2)
+        print("La distancia de la ciudad de origen al aeropuerto es de: " + str(round(sal, 2)))
+        print("La distancia del aeropuerto de llegada a la ciudad de llegada es de: " + str(round(lleg, 2)))
+        print("La distancia entre aeropuertos es de: " + str(fly))
+        print("En total, se recorren " + str(round((sal+lleg+fly),2)) + " kilometros")
+
+
+
         
-                
-        
+
     elif int(inputs[0]) == 6:
         pass
     
