@@ -25,8 +25,9 @@
  """
 
 
+from DISClib.ADT.stack import pop
 from DISClib.Algorithms.Graphs.bellmanford import distTo, hasPathTo
-from DISClib.Algorithms.Graphs.bfs import pathTo
+from DISClib.Algorithms.Graphs.bfs import BreadhtFisrtSearch, pathTo
 from DISClib.Algorithms.Graphs.dfo import DepthFirstOrder, comparenames
 from DISClib.Algorithms.Graphs.dfs import DepthFirstSearch
 from DISClib.Algorithms.Graphs.prim import PrimMST, edgesMST
@@ -343,11 +344,21 @@ def findShortest(analyzer, ciudad1, ciudad2):
 
 
 def searchPath(analyzer, millas):
+    camino = lt.newList()
     routes = analyzer["connectionstd"]
     kms = millas * 1.6
-    tot_msts = PrimMST(routes)
-    rutas = DepthFirstSearch(routes, "LIS")
-    camino = prim.prim
+    tot_msts = prim.PrimMST(routes)
+    xd = prim.edgesMST(routes, tot_msts)
+    size = lt.size(xd["mst"])
+    weight = 0
+    for i in range(0, size):
+        stack = pop(xd["mst"])
+        lt.addLast(camino, stack)
+        weight += stack["weight"]
+    if weight < kms:
+        return weight, camino
+    return weight, None
+
 
 def closedAirport(analyzer, iata):
     lista = lt.newList(cmpfunction=compareKeys)

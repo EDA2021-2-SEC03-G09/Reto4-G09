@@ -131,7 +131,7 @@ while True:
         respuesta, cant = controller.searchInter(cont)
         print("Se encontraron " + str(cant) + " aeropuertos interconectados")
         top(respuesta, False)
-        
+
     elif int(inputs[0]) == 4:
         iata1 = input("Seleccione un primer aeropuerto: \n>")
         iata2 = input("Seleccione un segundo aeropuerto: \n>")
@@ -162,11 +162,20 @@ while True:
 
     elif int(inputs[0]) == 6:
         millas = float(input("Ingrese el numero de millas disponibles: \n>"))
-        controller.searchPath(cont, millas)
+        peso, ruta = controller.searchPath(cont, millas)
+        if ruta is None:
+            print("No es posible realizar la ruta encontrada con las millas disponibles")
+        else:
+            print("Se encontro una ruta de " + str(round(peso,2)) + " kms de distancia")
+            print("Los aeropuertos a seguir son: \n")
+            for i in lt.iterator(ruta):
+                print(i)
+                print("-"*50)
     
     elif int(inputs[0]) == 7:
         iata = input("Ingrese el codigo del aeropuerto que dejara de funcionar: \n>")
         od = controller.closedAirport(cont, iata)
+        
         print("Se encontraron " + str(lt.size(od)) + " que se verán afectados")
         print("\n" + "-"*50)
         top(od, True)
