@@ -27,7 +27,9 @@
 
 from DISClib.Algorithms.Graphs.bellmanford import distTo, hasPathTo
 from DISClib.Algorithms.Graphs.bfs import pathTo
-from DISClib.Algorithms.Graphs.dfo import DepthFirstOrder
+from DISClib.Algorithms.Graphs.dfo import DepthFirstOrder, comparenames
+from DISClib.Algorithms.Graphs.dfs import DepthFirstSearch
+from DISClib.Algorithms.Graphs.prim import PrimMST, edgesMST
 from DISClib.Algorithms.Graphs.scc import KosarajuSCC, connectedComponents, reverseGraph, sccCount, stronglyConnected
 import config as cf
 from DISClib.ADT import list as lt
@@ -39,6 +41,7 @@ from DISClib.Utils import error as error
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Graphs import dijsktra as djk
+from DISClib.Algorithms.Graphs import prim
 assert cf
 
 """
@@ -103,7 +106,7 @@ def addRouteStop(analyzer, service):
     return analyzer
 
 def addRouteConnections(analyzer):
-  
+    airs = analyzer["connectionsod"] 
     lststops = mp.keySet(analyzer['airports'])
     for key in lt.iterator(lststops):
         lstroutes = mp.get(analyzer['airports'], key)['value']
@@ -113,12 +116,16 @@ def addRouteConnections(analyzer):
                 devuelta = mp.get(analyzer["airports"], route)["value"]
                 pos = lt.isPresent(devuelta, key)
                 if pos != 0:
+                    distance = gr.getEdge(airs, key, route)["weight"]
                     addStop(analyzer, "connectionstd", key)
                     addStop(analyzer, "connectionstd", route)
-                    addConnection(analyzer,"connectionstd", key, route, 0)
-                    addConnection(analyzer,"connectionstd", route, key, 0)
+                    addConnection(analyzer,"connectionstd", key, route, distance)
                 
-def addAirportInfo(analyzer, airport):
+
+def addAirportInfo(analyzer, airport, primero):
+    mp.put(analyzer["airportsInfo"], "ultimo", airport)
+    if primero:
+        mp.put(analyzer["airportsInfo"], "primero", airport)
     if mp.get(analyzer["airportsInfo"], airport["IATA"]) is None:
         info = {"Name": "", "City": "", "Country": "", "Latitude": "", "Longitude":""}
         info["Name"] = airport["Name"]
@@ -129,6 +136,7 @@ def addAirportInfo(analyzer, airport):
         mp.put(analyzer["airportsInfo"], airport["IATA"], info)
 
 def addCityInfo(analyzer, airport):
+    mp.put(analyzer["countries"], "ultimo", airport)
     info = {"City": "", "IATA": "", "Country": "", "Latitude": "", "Longitude":"", "Population": 0, "Id": ""}
     info["IATA"] = airport["iso3"]
     info["City"] = airport["city"]
@@ -162,13 +170,14 @@ def totalConnections(analyzer, graph):
     return gr.numEdges(analyzer[graph])
 
 def totalAirports(analyzer):
-    keys = mp.keySet(analyzer["airportsInfo"])
-    return mp.get(analyzer["airportsInfo"], lt.firstElement(keys))
+    primero = mp.get(analyzer["airportsInfo"], "primero")
+    ultimo = mp.get(analyzer["airportsInfo"], "ultimo")
+    return primero, ultimo
 
 def totalCities(analyzer):
-    keys = mp.keySet(analyzer["countries"])
+    ultimo = mp.get(analyzer["countries"], "ultimo")
     cant = mp.size(analyzer["countries"])
-    return mp.get(analyzer["countries"], lt.firstElement(keys)), cant
+    return ultimo, cant
 
 def getCities(analyzer, city):
     countries = analyzer["countries"]
@@ -177,8 +186,11 @@ def getCities(analyzer, city):
     for cityrep in lt.iterator(cities):
         info = mp.get(countries, cityrep)
         info = me.getValue(info)
-        if info["City"] == city:
-            lt.addLast(samename, info)
+        try: 
+            if info["City"] == city:
+                lt.addLast(samename, info)
+        except Exception:
+            pass
     return samename
 # Funciones utilizadas para comparar elementos dentro de una lista
 def cleanServiceDistance(service):
@@ -222,6 +234,13 @@ def servesConnection(analyzer,graph, airport):
             
 
 # Funciones de ordenamiento
+def compareKeys(airport1, airport2):
+    if (airport1["key"]== airport2["key"]):
+        return 0
+    elif (airport1["key"] > airport2["key"]):
+        return 1
+    else: 
+        return -1
 
 
 def compareAirports(airport, keys):
@@ -315,7 +334,28 @@ def findShortest(analyzer, ciudad1, ciudad2):
     airport2 = om.get(busq2, distancelleg)
     estbusqueda = djk.Dijkstra(analyzer["connectionsod"], airport1["value"])
     path = djk.distTo(estbusqueda, airport2["value"])
-    return distancesal, distancelleg, path
+    camino = djk.pathTo(estbusqueda, airport2["value"])
+    rutaair = lt.newList()
+    for airport in lt.iterator(camino):
+        lt.addLast(rutaair, airport)
+
+    return distancesal, distancelleg, path, rutaair
+
+
+def searchPath(analyzer, millas):
+    routes = analyzer["connectionstd"]
+    kms = millas * 1.6
+    tot_msts = PrimMST(routes)
+    rutas = DepthFirstSearch(routes, "LIS")
+    camino = prim.prim
+
+def closedAirport(analyzer, iata):
+    lista = lt.newList(cmpfunction=compareKeys)
+    vecinosod = gr.adjacents(analyzer["connectionsod"], iata)
+    for i in lt.iterator(vecinosod):
+        info = mp.get(analyzer["airportsInfo"], i)
+        lt.addLast(lista, info)
+    return lista
 
 
 def getCoords(city):

@@ -43,8 +43,10 @@ def loadServices(analyzer, servicesfile, airportsfile, citiesfile):
     input_file = csv.DictReader(open(servicesfile, encoding="utf-8"), delimiter=",")
     input_file2 = csv.DictReader(open(airportsfile, encoding="utf-8"), delimiter=",")
     input_file3 = csv.DictReader(open(citiesfile, encoding="utf-8"), delimiter=",")
+    primero = True
     for airport in input_file2:
-        model.addAirportInfo(analyzer, airport)
+        model.addAirportInfo(analyzer, airport, primero)
+        primero = False
     for city in input_file3:
         model.addCityInfo(analyzer, city)
     for service in input_file:
@@ -87,3 +89,9 @@ def findSCC(analyzer, iata1, iata2):
 
 def findShortest(analyzer, city1, city2):
     return model.findShortest(analyzer, city1, city2)
+
+def searchPath(analyzer, millas):
+    return model.searchPath(analyzer, millas)
+
+def closedAirport(analyzer, iata):
+    return model.closedAirport(analyzer, iata)

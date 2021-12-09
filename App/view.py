@@ -73,13 +73,24 @@ def printAnswer(answer):
         print("-"*100)
         print("-"*100)
 
-def top(answer):
+def printaAirportInfo(answer):
+    for airport in lt.iterator(answer):
+        print("Codigo IATA: " + airport["key"])
+        print("Nombre :"+ airport["value"]["Name"])
+        print("City: "+ airport["value"]["City"])
+        print("Pais: " + airport["value"]["Country"])
+        print("-"*50)
+
+def top(answer, todainfo):
     top= lt.newList()
     if lt.size(answer) >= 5:
         for i in range(0,5):
-            lt.addLast(top, lt.firstElement[answer])
+            lt.addFirst(top, lt.firstElement(answer))
             lt.removeFirst(answer)
-        printAnswer(top)
+        if todainfo:
+            printaAirportInfo(top)
+        else:
+            printAnswer(top)
     else: 
         printAnswer(answer)
 catalog = None
@@ -105,9 +116,11 @@ while True:
         numvertex2 = controller.totalStops(cont,"connectionstd")
         print("\nSe cargaron " + str(numedges2) + " rutas en el bigrafo")
         print("Se cargaron " + str(numvertex2) + " aeropuertos en el bigrafo\n")
-        airport= controller.totalAiports(cont)
+        airport, ultimo = controller.totalAiports(cont)
         print("El primer aeropuerto cargado fue")
         print(airport)
+        print("El ultimo aeropuerto cargado fue")
+        print(ultimo)
         city, cant = controller.totalCities(cont)
         print("La primer ciudad cargada fue")
         print(city)
@@ -117,7 +130,8 @@ while True:
     elif int(inputs[0]) == 3:
         respuesta, cant = controller.searchInter(cont)
         print("Se encontraron " + str(cant) + " aeropuertos interconectados")
-        printAnswer(respuesta)
+        top(respuesta, False)
+        
     elif int(inputs[0]) == 4:
         iata1 = input("Seleccione un primer aeropuerto: \n>")
         iata2 = input("Seleccione un segundo aeropuerto: \n>")
@@ -136,22 +150,28 @@ while True:
         ciudadll = input("Ingrese una ciudad de llegada: ")
         respuestas = controller.getbyCities(cont, ciudadll)
         ciudad2 = repeatedCities(respuestas)["Id"]
-        sal, lleg, fly = controller.findShortest(cont, ciudad1, ciudad2)
+        sal, lleg, fly, ruta = controller.findShortest(cont, ciudad1, ciudad2)
         print("La distancia de la ciudad de origen al aeropuerto es de: " + str(round(sal, 2)))
         print("La distancia del aeropuerto de llegada a la ciudad de llegada es de: " + str(round(lleg, 2)))
         print("La distancia entre aeropuertos es de: " + str(fly))
         print("En total, se recorren " + str(round((sal+lleg+fly),2)) + " kilometros")
-
-
-
-        
+        print("La ruta area que se debe tomar es: \n")
+        for i in lt.iterator(ruta):
+            print(i)
+            print("-"*50)
 
     elif int(inputs[0]) == 6:
-        pass
+        millas = float(input("Ingrese el numero de millas disponibles: \n>"))
+        controller.searchPath(cont, millas)
     
     elif int(inputs[0]) == 7:
-        pass
-    
+        iata = input("Ingrese el codigo del aeropuerto que dejara de funcionar: \n>")
+        od = controller.closedAirport(cont, iata)
+        print("Se encontraron " + str(lt.size(od)) + " que se verán afectados")
+        print("\n" + "-"*50)
+        top(od, True)
+
+
     elif int(inputs[0]) == 8:
         pass
     
