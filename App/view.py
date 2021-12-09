@@ -26,15 +26,15 @@ import controller
 from DISClib.ADT import list as lt
 assert cf
 
-
+sys.setrecursionlimit(1048576)
 """
 La vista se encarga de la interacción con el usuario
 Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
-servicefile = "routes-utf8-small.csv"
-airportsfile = "airports-utf8-small.csv"
+servicefile = "routes-utf8-large.csv"
+airportsfile = "airports-utf8-large.csv"
 citiesfile = "worldcities-utf8.csv"
 
 def repeatedCities(respuestas):

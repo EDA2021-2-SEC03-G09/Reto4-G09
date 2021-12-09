@@ -149,14 +149,15 @@ def addCityInfo(analyzer, airport):
     info["Admin"] = airport["admin_name"]
     info["Capital"] = airport["admin_name"]
     mp.put(analyzer["countries"], info["Id"], info)
-# Funciones para creacion de datos
+
 
 def addConnection(analyzer, graph, origin, destination, distance):
     edge = gr.getEdge(analyzer[graph], origin, destination)
     if edge is None:
         gr.addEdge(analyzer[graph], origin, destination, distance)
     return analyzer
-# Funciones de consulta
+
+
 def totalStops(analyzer, graph):
     """
     Retorna el total de estaciones (vertices) del grafo
@@ -193,7 +194,7 @@ def getCities(analyzer, city):
         except Exception:
             pass
     return samename
-# Funciones utilizadas para comparar elementos dentro de una lista
+
 def cleanServiceDistance(service):
 
     if service['distance_km'] == '':
@@ -233,44 +234,6 @@ def servesConnection(analyzer,graph, airport):
     return total, cant
 
             
-
-# Funciones de ordenamiento
-def compareKeys(airport1, airport2):
-    if (airport1["key"]== airport2["key"]):
-        return 0
-    elif (airport1["key"] > airport2["key"]):
-        return 1
-    else: 
-        return -1
-
-
-def compareAirports(airport, keys):
-    airportcode = (keys["key"])
-    if (airport== airportcode):
-        return 0
-    elif (airport > airportcode):
-        return 1
-    else: 
-        return -1
-
-def compareRoutes(route1, route2):
-    """
-    Compara dos rutas
-    """
-    if (route1 == route2):
-        return 0
-    elif (route1 > route2):
-        return 1
-    else:
-        return -1
-
-def compareNums(route1, route2):
-    if (route1 == route2):
-        return 0
-    elif (route1 > route2):
-        return 1
-    else:
-        return -1
 
 
 def buildAnswer(nodeinfo, out, inside):
@@ -387,3 +350,41 @@ def haversine(lat1, lon1, lat2, lon2):
       c = 2*asin(sqrt(a))
 
       return R * c
+
+# Funciones de ordenamiento
+def compareKeys(airport1, airport2):
+    if (airport1["key"]== airport2["key"]):
+        return 0
+    elif (airport1["key"] > airport2["key"]):
+        return 1
+    else: 
+        return -1
+
+
+def compareAirports(airport, keys):
+    airportcode = (keys["key"])
+    if (airport== airportcode):
+        return 0
+    elif (airport > airportcode):
+        return 1
+    else: 
+        return -1
+
+def compareRoutes(route1, route2):
+    """
+    Compara dos rutas
+    """
+    if (route1 == route2):
+        return 0
+    elif (route1 > route2):
+        return 1
+    else:
+        return -1
+
+def compareNums(route1, route2):
+    if (route1 == route2):
+        return 0
+    elif (route1 > route2):
+        return 1
+    else:
+        return -1
